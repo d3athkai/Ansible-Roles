@@ -1,0 +1,16 @@
+###
+###
+# Linux Fail2ban
+#
+# Changelogs:
+# - v1: 04/06/2021 - initial release
+###
+###
+---
+- name: Linux Fail2ban
+  hosts: all
+  become: yes
+  become_user: root
+
+  roles:
+  - linux-fail2ban
