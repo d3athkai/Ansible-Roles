@@ -11,7 +11,7 @@ galaxy_info:
   platforms:
     - name: Rocky Linux
       versions:
-        - 8
+        - Green Obsidian
     - name: Ubuntu
       versions:
         - jammy
