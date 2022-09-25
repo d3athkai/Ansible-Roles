@@ -1,0 +1,4 @@
+---
+# task file for linux-fail2ban
+
+- include_tasks: linux-fail2ban-{{ ansible_distribution }}.yml

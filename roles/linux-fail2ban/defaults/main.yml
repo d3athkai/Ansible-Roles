@@ -1,0 +1,22 @@
+---
+# defaults file for linux-fail2ban
+
+# SSH Port
+fail2ban_ssh: 22
+
+# Email settings
+fail2ban_destemail: root@localhost
+fail2ban_sender: root@{{ ansible_fqdn }}
+fail2ban_sendname: Fail2Ban
+
+# IP addresses for Fail2ban to ignore
+fail2ban_ignoreips: "127.0.0.1/8 ::1"   # Add new IPs with spacing
+
+# Number of seconds that an IP is banned for
+fail2ban_bantime: 600
+
+# Number of seconds between login attempts for maxretry
+fail2ban_findtime: 600
+
+# Number of attempts from an IP before a ban is imposed
+fail2ban_maxretry: 5

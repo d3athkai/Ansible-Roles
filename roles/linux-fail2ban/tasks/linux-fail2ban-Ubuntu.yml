@@ -1,0 +1,42 @@
+---
+## Ubuntu Fail2ban
+
+  - name: Install Fail2ban
+    apt:
+      name: fail2ban
+      state: latest
+      update_cache: yes
+      autoclean: yes
+
+  - name: Create local configuration /etc/fail2ban/jail.local
+    template:
+      src: jail.local-{{ ansible_distribution }}.j2
+      dest: /etc/fail2ban/jail.local
+      owner: root
+      group: root
+      mode: '0640'
+
+  - name: Restart and enable Fail2ban
+    systemd:
+      name: fail2ban
+      state: restarted
+      enabled: yes
+
+  - name: Get Fail2ban status
+    shell: fail2ban-client status sshd
+    register: fail2ban
+
+  - name: Show Fail2ban status
+    debug: msg={{ fail2ban.stdout_lines }}
+
+  - name: Install UFW
+    apt:
+      name: ufw
+      state: present
+      autoclean: yes
+
+  - name: Start and enable UFW service
+    systemd:
+      name: ufw
+      state: started
+      enabled: yes

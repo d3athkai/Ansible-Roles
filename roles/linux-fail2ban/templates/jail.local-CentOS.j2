@@ -1,0 +1,15 @@
+{% for host in ansible_play_hosts %}
+[DEFAULT]
+destemail = {{ fail2ban_destemail }}
+sender = {{ fail2ban_sender }}
+sendername = {{ fail2ban_sendname }}
+ignoreip = {{ fail2ban_ignoreips }}
+bantime  = {{ fail2ban_bantime }} 
+findtime = {{ fail2ban_findtime }}
+maxretry = {{ fail2ban_maxretry }}
+
+[sshd]
+enabled  = true
+port = {{ fail2ban_ssh }}
+filter = sshd
+{% endfor %}
