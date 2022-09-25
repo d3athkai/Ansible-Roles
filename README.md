@@ -1,7 +1,7 @@
 ![GitHub](https://img.shields.io/badge/license-GPL--3.0-orange?style=plastic) ![GitHub](https://img.shields.io/badge/Python-2.7+-green?style=plastic) ![GitHub](https://img.shields.io/badge/Ansible-2.9+-blue?style=plastic) 
 
 # My Ansible Roles
-A Work-in-Progress (WIP), with Ansible Roles adding regularly.  
+A Work-in-Progress (WIP), with more Ansible Roles adding regularly.  
   
 ## Ansible Tips and Tricks
 Refer to [My Ansible Tips and Tricks](https://gist.github.com/d3athkai/3b1c6becc41d79f45332f238791ceb3d).  
