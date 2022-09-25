@@ -1,0 +1,7 @@
+---
+# defaults file for Linux MariaDB
+
+# get version from https://mariadb.org/download/?t=repo-config
+mariadb_version: 10.8
+
+mysql_root_password: password

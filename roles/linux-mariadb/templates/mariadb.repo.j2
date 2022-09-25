@@ -1,0 +1,8 @@
+{% for host in ansible_play_hosts %}
+[mariadb]
+name = MariaDB
+baseurl = http://yum.mariadb.org/{{ mariadb_version }}/rhel8-amd64
+module_hotfixes=1
+gpgkey=https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
+gpgcheck=1
+{% endfor %}

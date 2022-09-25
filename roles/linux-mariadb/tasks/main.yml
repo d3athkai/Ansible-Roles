@@ -1,0 +1,4 @@
+---
+# task file for Linux MariaDB
+
+- include_tasks: mariadb-{{ ansible_distribution }}.yml

@@ -1,0 +1,101 @@
+---
+## Rocky Linux MariaDB
+
+  - name: Create MariaDB Repo
+    template:
+      src: mariadb.repo.j2
+      dest: /etc/yum.repos.d/mariadb.repo
+      owner: root
+      group: root
+      mode: '0644'
+      force: yes
+
+  - name: Install MariaDB
+    dnf:
+      name:
+        - mariadb-server
+        - python3-PyMySQL
+      state: latest
+      update_cache: yes
+
+  - name: Update MariaDB listening address to 127.0.0.1
+    lineinfile:
+      path: /etc/my.cnf.d/server.cnf
+      insertafter: '.mysqld\]'
+      regexp: '^bind-address.*'
+      line: bind-address=127.0.0.1
+      owner: root
+      group: root
+      mode: '0644'
+
+  # https://mariadb.com/kb/en/server-system-variables/#lower_case_table_names
+  # show variables like 'lower_case_table_names';
+  - name: Update MariaDB lower_case_table_names variable to 1
+    lineinfile:
+      path: /etc/my.cnf.d/server.cnf
+      insertafter: '.mariadb\]'
+      regexp: '^lower_case_table_name.*'
+      line: lower_case_table_name=1
+      owner: root
+      group: root
+      mode: '0644'
+
+  - name: Start and enable MariaDB
+    systemd:
+      name: mariadb
+      state: started
+      enabled: yes
+
+  - name: Get MariaDB version
+    shell: mariadb-admin --version
+    register: mariadb_version
+
+  - name: Show MariaDB version
+    debug: msg="{{ mariadb_version.stdout_lines }}"
+
+
+  ######################################
+  # Start of mysql_secure_installation #
+  ######################################
+  - name: Set MariaDB root password for localhost and switch to unix_socket authentication
+    mysql_user:
+      name: root
+      password: "{{ mysql_root_password }}"
+      host: localhost
+      login_user: root
+      login_password: "{{ mysql_root_password }}"
+      login_unix_socket: /var/lib/mysql/mysql.sock
+      check_implicit_admin: yes
+      state: present
+
+  - name: Remove anonymous users for MariaDB
+    mysql_user:
+      login_user: root
+      login_password: "{{ mysql_root_password }}"
+      name: ''
+      host_all: yes
+      state: absent
+
+  - name: Disallow root login remotely for MariaDB
+    command: mysql -u root -p{{ mysql_root_password }} -e "{{ item }}"
+    with_items:
+    - DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1')
+
+  - name: Remove MariaDB test database and access to it
+    command: mysql -u root -p{{ mysql_root_password }} -e "{{ item }}"
+    with_items:
+      - DROP DATABASE IF EXISTS test
+      - DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%'
+
+  - name: Reload privilege tables for MariaDB
+    command: mysql -u root -p{{ mysql_root_password }} -e "FLUSH PRIVILEGES"
+
+  - name: Restart MariaDB
+    systemd:
+      name: mariadb
+      state: restarted
+      enabled: yes
+
+  ####################################
+  # End of mysql_secure_installation #
+  ####################################
