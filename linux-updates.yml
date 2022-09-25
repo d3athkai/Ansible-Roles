@@ -1,0 +1,16 @@
+###
+###
+# Linux OS Update
+#
+# Changelogs:
+# - v1: 23/05/2021 - initial release
+###
+###
+---
+- name: Linux OS Update
+  hosts: all
+  become: yes
+  become_user: root
+
+  roles:
+  - linux-updates
