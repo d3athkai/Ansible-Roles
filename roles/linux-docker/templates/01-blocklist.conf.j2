@@ -1,0 +1,11 @@
+{% for host in ansible_play_hosts %}
+if $msg contains "run-docker-runtime" and $msg contains ".mount: Succeeded." then {
+	stop
+}
+if $msg contains "var-lib-docker-containers" and $msg contains ".mount: Succeeded." then {
+	stop
+}
+if $msg contains "var-lib-docker-overlay2" and $msg contains ".mount: Succeeded." then {
+	stop
+}
+{% endfor %}

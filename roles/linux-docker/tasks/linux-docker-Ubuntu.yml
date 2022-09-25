@@ -1,0 +1,102 @@
+---
+  ###
+  ###
+  # SETUP DOCKER FOR UBUNTU: https://docs.docker.com/engine/install/ubuntu/
+  ###
+  ###
+  - name: Uninstall old versions of Docker
+    apt:
+      name:
+      - docker
+      - docker-engine
+      - docker.io
+      - containerd
+      - runc
+      state: absent
+      autoclean: yes
+
+  - name: Install packages to allow apt to use a repository over HTTPS
+    apt:
+      name:
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+      state: latest
+      update_cache: yes
+      autoclean: yes
+
+  - name: Add Docker’s official GPG key
+    apt_key:
+      url: https://download.docker.com/linux/ubuntu/gpg
+      keyring: /usr/share/keyrings/docker-archive-keyring.gpg
+      state: present
+
+  - name: Get DEB architecture
+    shell: dpkg --print-architecture
+    register: deb_architecture
+
+  - name: Add Docker's stable Repository
+    apt_repository:
+      repo: "deb [arch={{ deb_architecture.stdout }} signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+      state: present
+      filename: "docker"
+
+  - name: Install Docker Engine
+    apt:
+      name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      state: latest
+      update_cache: yes
+      autoclean: yes
+
+  - name: Enable and Start Docker service
+    systemd:
+      state: started
+      name: docker
+      enabled: yes
+
+  - name: Configure Docker /etc/docker/daemon.json
+    template:
+      src: daemon.json.j2
+      dest: /etc/docker/daemon.json
+      owner: root
+      group: root
+      mode: '0644'
+
+  - name: Filter system logs for mount succeeded entries
+    template:
+      src: 01-blocklist.conf.j2
+      dest: /etc/rsyslog.d/01-blocklist.conf
+      owner: root
+      group: root
+      mode: '0640'
+
+  - name: Restart rsyslog service
+    systemd:
+      state: restarted
+      name: rsyslog
+      enabled: yes
+
+  - name: Cron to housekeep dangling images
+    template:
+      src: docker-prune.j2
+      dest: /etc/cron.daily/docker-prune
+      owner: root
+      group: root
+      mode: '0755'
+
+  - name: Restart Docker service
+    systemd:
+      state: restarted
+      name: docker
+      enabled: yes
+
+  - name: Get Docker version
+    shell: docker --version
+    register: docker_version
+
+  - name: Show Docker version
+    debug: msg="{{ docker_version.stdout_lines }}"

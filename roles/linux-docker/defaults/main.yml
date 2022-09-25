@@ -1,0 +1,27 @@
+---
+# defaults file for linux-docker
+
+# Docker Logs Settings
+docker_logs_max_size: 10m
+docker_logs_max_file: 3
+
+# Docker Registries Settings
+# Example of NO registries: []
+# Example of 1 registry: ["reg1.example.com:5000"]
+# Example of multiple registries: ["reg1.example.com:5000", "reg2.example.com:5000"]
+docker_registry_mirrors: []
+docker_insecure_registries: []
+
+# Docker User Settings
+docker_create_user: true # true / false
+docker_user: dockeradm
+docker_password: '*'
+
+# Docker Directory
+docker_create_directory: true # true / false
+docker_directory: /docker-apps
+docker_directory_owner: dockeradm
+docker_directory_permission: 0755 # example: 0755
+
+# Docker Compose Setting
+docker_compose_setup: true # true / false

@@ -1,0 +1,82 @@
+---
+  ###
+  ###
+  # SETUP DOCKER FOR ROCKY LINUX: https://docs.docker.com/engine/install/centos/
+  ###
+  ###
+  - name: Uninstall old versions of Docker
+    yum:
+      name:
+      - docker
+      - docker-client
+      - docker-client-latest
+      - docker-common
+      - docker-latest
+      - docker-latest-logrotate
+      - docker-logrotate
+      - docker-engine
+      state: absent
+      autoremove: yes
+
+  - name: Add Docker's stable Repository
+    get_url:
+      url: https://download.docker.com/linux/centos/docker-ce.repo
+      dest: /etc/yum.repos.d/docker-ce.repo
+
+  - name: Install Docker Engine
+    yum:
+      name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      state: latest
+      update_cache: yes
+
+  - name: Enable and Start Docker service
+    systemd:
+      state: started
+      name: docker
+      enabled: yes
+
+  - name: Configure Docker /etc/docker/daemon.json
+    template:
+      src: daemon.json.j2
+      dest: /etc/docker/daemon.json
+      owner: root
+      group: root
+      mode: '0644'
+
+  - name: Filter system logs for mount succeeded entries
+    template:
+      src: 01-blocklist.conf.j2
+      dest: /etc/rsyslog.d/01-blocklist.conf
+      owner: root
+      group: root
+      mode: '0640'
+
+  - name: Restart rsyslog service
+    systemd:
+      state: restarted
+      name: rsyslog
+      enabled: yes
+
+  - name: Cron to housekeep dangling images
+    template:
+      src: docker-prune.j2
+      dest: /etc/cron.daily/docker-prune
+      owner: root
+      group: root
+      mode: '0755'
+
+  - name: Restart Docker service
+    systemd:
+      state: restarted
+      name: docker
+      enabled: yes
+
+  - name: Get Docker version
+    shell: docker --version
+    register: docker_version
+
+  - name: Show Docker version
+    debug: msg="{{ docker_version.stdout_lines }}"

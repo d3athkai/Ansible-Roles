@@ -1,0 +1,9 @@
+---
+# task file for linux-docker
+
+- include_tasks: linux-docker-{{ ansible_distribution }}.yml
+
+- import_tasks: linux-docker-user-directory.yml
+
+- import_tasks: linux-docker-compose.yml
+  when: docker_compose_setup | bool == true

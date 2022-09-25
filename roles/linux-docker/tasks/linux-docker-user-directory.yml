@@ -1,0 +1,39 @@
+---
+  ###
+  ###
+  # SETUP DOCKER USER AND DIRECTORY
+  ###
+  - block:
+    - name: Create user {{ docker_user }} to manage Docker
+      user:
+        name: "{{ docker_user }}"
+        append: yes
+        comment: Docker User
+        groups: docker
+        password: "{{ docker_password }}"
+        expires: -1
+        home: /home/{{ docker_user }}
+        shell: /bin/bash
+        state: present
+
+    - name: Get User info
+      shell: passwd -S {{ docker_user }}
+      register: docker_user
+
+    - name: Show User info
+      debug: msg="{{ docker_user.stdout_lines }}"
+
+    when: docker_create_user | bool == true
+
+
+  - block:
+    - name: Create Docker directory
+      file:
+        path: "{{ docker_directory }}"
+        state: directory
+        recurse: yes
+        owner: "{{ docker_directory_owner }}"
+        group: docker
+        mode: '{{ docker_directory_permission }}'
+
+    when: docker_create_directory | bool == true

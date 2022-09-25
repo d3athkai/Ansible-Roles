@@ -1,0 +1,31 @@
+---
+galaxy_info:
+  author: d3athkai
+  description: Docker Setup for Rocky Linux/Ubuntu/Debian/Raspberry Pi
+  company: https://github.com/d3athkai
+
+  license: license (GPLv3)
+
+  min_ansible_version: 2.9
+
+  platforms:
+    - name: Rocky Linux
+      versions:
+        - Green Obsidian
+    - name: Ubuntu
+      versions:
+        - focal
+    - name: Debian
+      versions:
+        - bullseye
+    - name: Rasbperry Pi
+      versions:
+        - bullseye
+
+  galaxy_tags:
+    - apt
+    - yum
+    - docker
+    - setup
+
+dependencies: []

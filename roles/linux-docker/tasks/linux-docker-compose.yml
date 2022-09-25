@@ -1,0 +1,24 @@
+---
+  ###
+  ###
+  # SETUP DOCKER COMPOSE
+  ###
+  - name: Download Docker Compose
+    shell: 'curl -s https://api.github.com/repos/docker/compose/releases/latest | grep "linux-{{ ansible_architecture }}\"$" | cut -d : -f 2,3 | tr -d \" | xargs curl -L -o /usr/local/bin/docker-compose'
+    args:
+      executable: /bin/bash
+      warn: false
+
+  - name: Change Docker Compose permission
+    file:
+      path: /usr/local/bin/docker-compose
+      owner: root
+      group: root
+      mode: '0755'
+
+  - name: Get Docker Compose version
+    shell: docker-compose --version
+    register: docker_compose_version
+
+  - name: Show Docker Compose version
+    debug: msg="{{ docker_compose_version.stdout_lines }}"

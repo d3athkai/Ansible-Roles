@@ -1,0 +1,12 @@
+{% for host in ansible_play_hosts %}
+{
+	"iptables": false,
+	"log-driver": "json-file",
+	"log-opts": {
+		"max-size": "{{ docker_logs_max_size }}",
+		"max-file": "{{ docker_logs_max_file }}"
+	},
+	"registry-mirrors": {{ docker_registry_mirrors | replace("'","\"") }},
+	"insecure-registries": {{ docker_insecure_registries | replace("'","\"") }}
+}
+{% endfor %}
