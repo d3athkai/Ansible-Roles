@@ -12,8 +12,7 @@ In `/etc/ansible/ansible.cfg`, under `[defaults]`, add: `interpreter_python=/usr
 ## Roles List
 | S/N  | Role  | Description  |
 | ------------- | ------------- | ------------- |
-| 1 | linux-updates  | To perform OS Updates for CentOS / RockyLinux / Red Hat / Ubuntu / Debian / Raspberry Pi OS.<br>It will reboot the host after updating and wait for the host to boot.<br>It has the options of enabling logging for both available updates and installed updates in the logging directory specified.  |
-| 2 | linux-fail2ban  | To setup Fail2ban for CentOS / RockyLinux / Ubuntu / Debian / Raspberry Pi OS.<br>Multiple failed ssh attempts will result in IP block in UFW / Firewalld.  |
-| 3 | linux-docker  | To setup Docker for CentOS / RockyLinux / Ubuntu / Debian / Raspberry Pi OS.<br>It has the options of creating a user to manage Docker and installing Docker Compose.  |
-| 4 | linux-sssd  | To configure LDAP access using SSSD for CentOS / RockyLinux / Ubuntu / Debian / Raspberry Pi OS.  |
+| 1 | linux-updates  | To perform OS Updates for RockyLinux / Red Hat / Ubuntu / Debian / Raspberry Pi OS.<br>It will reboot the host after updating and wait for the host to boot.<br>It has the options of enabling logging for both available updates and installed updates in the logging directory specified.  |
+| 2 | linux-fail2ban  | To setup Fail2ban for RockyLinux / Ubuntu / Debian / Raspberry Pi OS.<br>Multiple failed ssh attempts will result in IP block in UFW / Firewalld.  |
+| 3 | linux-docker  | To setup Docker for RockyLinux / Ubuntu / Debian / Raspberry Pi OS.<br>It has the options of creating a user to manage Docker and installing Docker Compose.  |
   
