@@ -16,4 +16,5 @@ In `/etc/ansible/ansible.cfg`, under `[defaults]`, add: `interpreter_python=/usr
 | 2 | linux-fail2ban  | To setup Fail2ban for RockyLinux / Ubuntu / Debian / Raspberry Pi OS.<br>Multiple failed ssh attempts will result in IP block in UFW / Firewalld.  |
 | 3 | linux-docker  | To setup Docker for RockyLinux / Ubuntu / Debian / Raspberry Pi OS.<br>It has the options of creating a user to manage Docker and installing Docker Compose.  |
 | 4 | linux-sssd  | To setup SSSD for RockyLinux / Ubuntu / Debian / Raspberry Pi OS.  |
+| 5 | linux-mariadb  | To setup MariaDB for RockyLinux.  |
   
