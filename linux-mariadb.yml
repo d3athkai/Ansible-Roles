@@ -1,0 +1,16 @@
+###
+###
+# Linux MariaDB
+#
+# Changelogs:
+# - v1: 25/09/2022 - initial release
+###
+###
+---
+- name: Linux MariaDB
+  hosts: all
+  become: yes
+  become_user: root
+
+  roles:
+  - linux-mariadb
