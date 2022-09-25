@@ -1,0 +1,16 @@
+###
+###
+# Linux Docker
+#
+# Changelogs:
+# - v1: 07/06/2021 - initial release
+###
+###
+---
+- name: Linux Docker
+  hosts: all
+  become: yes
+  become_user: root
+
+  roles:
+  - linux-docker
