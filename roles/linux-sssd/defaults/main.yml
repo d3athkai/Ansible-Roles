@@ -1,0 +1,25 @@
+---
+# defaults file for linux-sssd
+
+
+### LDAP Settings ###
+# ldap or ldaps
+ldap_protocol: ldaps
+
+# eg: ldap.example.com
+ldap_url: ldap.example.com
+
+# 389 or 636
+ldap_port: 636
+
+# eg: dc=example,dc=com
+ldap_search_base: dc=example,dc=com
+
+# eg: cn=readonly,dc=example,dc=com
+ldap_bind_dn_user: cn=readonly,dc=example,dc=com
+
+# clear text
+ldap_bind_dn_user_password: password
+
+# group name
+ldap_group_name: user

@@ -1,0 +1,127 @@
+---
+## Debian SSSD
+
+  - name: Install System Security Services Daemon (SSSD)
+    apt:
+      name:
+        - sssd
+        - sssd-tools
+        - sssd-dbus
+        - libpam-sss
+        - libnss-sss
+      state: latest
+      autoclean: yes
+
+
+  - name: Install OpenLDAP Server CA Certificate
+    shell: openssl s_client -connect {{ ldap_url }}:{{ ldap_port }} -showcerts < /dev/null 2>&1 | openssl x509 -text | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > /etc/ssl/certs/ldapcacert.crt
+    args:
+      executable: /bin/bash
+
+  - name: Setting permissions to OpenLDAP Server CA Certificate
+    file:
+      path: /etc/ssl/certs/ldapcacert.crt
+      owner: sssd
+      group: sssd
+      mode: '0600'
+
+
+  - name: Generate Obfuscate LDAP Bind DN user password
+    shell: python3 -c "import pysss;print(pysss.password().encrypt('{{ ldap_bind_dn_user_password }}', pysss.password().AES_256))"
+    args:
+      executable: /bin/bash
+    register: ldap_bind_dn_user_password_obfuscate
+
+  - name: Create local configuration /etc/sssd/sssd.conf
+    template:
+      src: sssd.conf-{{ ansible_distribution }}.j2
+      dest: /etc/sssd/sssd.conf
+      owner: root
+      group: root
+      mode: '0600'
+
+
+  - name: Check if ldap original config file exists?
+    stat:
+      path: /etc/ldap/ldap.conf.orig
+    register: ldap_conf_exists
+
+  - name: Make a backup of ldap config file if original config file not exists
+    copy:
+      remote_src: yes
+      src: /etc/ldap/ldap.conf
+      dest: /etc/ldap/ldap.conf.orig
+      force: no
+    when: ldap_conf_exists.stat.exists | bool == false
+    ignore_errors: yes
+
+  - name: Create directory /etc/ldap if it does not exist
+    file:
+      path: /etc/ldap
+      state: directory
+      mode: '0755'
+      owner: root
+      group: root
+
+  - name: Create file /etc/ldap/ldap.conf if it does not exist
+    copy:
+      content: ""
+      dest: /etc/ldap/ldap.conf
+      mode: '0640'
+      owner: root
+      group: root
+      force: no
+
+  - name: Adding certificate to the LDAP configuration file part 1
+    lineinfile:
+      path: /etc/ldap/ldap.conf
+      regexp: '^TLS_CACERT.*'
+      line: "TLS_CACERT	/etc/ssl/certs/ldapcacert.crt"
+
+  - name: Adding certificate to the LDAP configuration file part 2
+    lineinfile:
+      path: /etc/ldap/ldap.conf
+      regexp: '^TLS_REQCERT.*'
+      line: "TLS_REQCERT	allow"
+
+
+  - name: Update Permission for sssd directory
+    file:
+      dest: /etc/sssd
+      owner: root
+      group: root
+      mode: '0600'
+      recurse: yes
+
+
+  - name: Configure Auto-Home Directory Creation
+    shell: pam-auth-update --enable mkhomedir --force
+    args:
+      executable: /bin/bash
+
+
+  - name: Set sudo for LDAP Group
+    copy:
+      dest: /etc/sudoers.d/ldapgroup
+      content: '%{{ ldap_group_name }}  ALL=(ALL:ALL) ALL'
+      owner: root
+      group: root
+      mode: '0440'
+      validate: /sbin/visudo -csf %s
+
+
+  - name: Restart and enable SSSD
+    systemd:
+      name: sssd
+      state: restarted
+      enabled: yes
+
+
+  - name: Get LDAP Domain Status
+    shell: sssctl domain-status -ao default
+    args:
+      executable: /bin/bash
+    register: sssctl_domain_status
+
+  - name: Show LDAP Domain Status
+    debug: msg={{ sssctl_domain_status.stdout_lines }}

@@ -1,0 +1,4 @@
+---
+# task file for linux-sssd
+
+- include_tasks: linux-sssd-{{ ansible_distribution }}.yml

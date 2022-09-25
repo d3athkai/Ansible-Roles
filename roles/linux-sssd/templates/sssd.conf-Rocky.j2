@@ -1,0 +1,40 @@
+{% for host in ansible_play_hosts %}
+[sssd]
+services = nss, pam
+# SSSD will not start if NO domains are configured.
+# Add new domain configurations as [domain/] sections, and then add the list of domains (in the order you want them to be queried) to the "domains" attribute below and uncomment it.
+config_file_version = 2
+domains = default
+
+[nss]
+# Ensure that certain users/groups are not authenticated from network accounts. Add more users/groups with comma.
+filter_groups = root
+filter_users = root
+
+[pam]
+#offline_credentials_expiration = 1 # days
+
+[domain/default]
+ldap_id_use_start_tls = True
+cache_credentials = True
+ldap_search_base = {{ ldap_search_base }}
+id_provider = ldap
+auth_provider = ldap
+chpass_provider = ldap
+access_provider = ldap
+ldap_uri = {{ ldap_protocol }}://{{ ldap_url }}:{{ ldap_port }}
+ldap_default_bind_dn = {{ ldap_bind_dn_user }}
+ldap_default_authtok = {{ ldap_bind_dn_user_password_obfuscate.stdout }}
+ldap_default_authtok_type = obfuscated_password
+ldap_tls_reqcert = allow
+ldap_tls_cacert = /etc/ssl/certs/ldapcacert.crt
+ldap_tls_cacertdir = /etc/ssl/certs
+ldap_search_timeout = 50
+ldap_network_timeout = 60
+ldap_access_order = filter
+ldap_access_filter = (objectClass=posixAccount)
+# Enables users and groups listing with getent
+enumerate = true
+# Debug Log Levels: https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/system-level_authentication_guide/trouble
+#debug_level=4
+{% endfor %}
