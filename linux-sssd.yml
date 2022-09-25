@@ -1,0 +1,16 @@
+###
+###
+# Linux SSSD
+#
+# Changelogs:
+# - v1: 26/09/2021 - initial release
+###
+###
+---
+- name: Linux SSSD
+  hosts: all
+  become: yes
+  become_user: root
+
+  roles:
+  - linux-sssd
