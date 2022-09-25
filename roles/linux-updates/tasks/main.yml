@@ -1,0 +1,8 @@
+---
+# task file for linux-updates
+
+- import_tasks: linux-updates-rocky.yml
+  when: ansible_distribution=="Rocky"
+
+- import_tasks: linux-updates-debian-ubuntu.yml
+  when: ansible_distribution=="Ubuntu" or ansible_distribution=="Debian"

@@ -1,0 +1,72 @@
+---
+  ###
+  ###
+  # ROCKY LINUX OS Updates
+  ###
+  ###
+  - name: Get pre-update kernel version
+    shell: uname -nr
+    register: pre_kernel_version
+
+  - name: Verify pre-update kernel version
+    debug: msg="{{ pre_kernel_version.stdout_lines }}"
+
+
+  - name: Log Available Updates to {{ logging_dir }} directory
+    shell: yum check-update >> available_updates_`date +'%y%m%d-%H%M%S'`.txt
+    args:
+      chdir: "{{ logging_dir }}"
+      warn: no
+    register: yum_result
+    failed_when: yum_result.rc not in [ 0, 100 ]
+    when: logging_enabled_for_available_updates | bool
+
+
+  - name: Check and install updates
+    yum:
+      name: '*'
+      state: latest
+      update_cache: yes
+    register: centos_redhat_patched
+
+  - pause:
+      seconds: 5
+    when: centos_redhat_patched.changed
+
+
+  - name: Reboot host
+    reboot:
+      msg: "Reboot initiated by Ansible for OS Updates"
+    async: 1
+    poll: 0
+    when: centos_redhat_patched.changed
+
+  - name: Waiting for host to start...
+    wait_for_connection:
+      delay: 5 # seconds to wait before starting to poll
+      connect_timeout: 20 # maximum number of seconds to wait for a connection to happen before closing and retrying
+      sleep: 5 # seconds to sleep between checks
+      timeout: 300 # maximum number of seconds to wait for
+    when: centos_redhat_patched.changed
+
+
+  - name: Get post-update kernel version
+    shell: uname -nr
+    register: post_kernel_version
+    when: centos_redhat_patched.changed
+
+  - name: Verify post-update kernel version
+    debug: msg="{{ pre_kernel_version.stdout_lines }} -> {{ post_kernel_version.stdout_lines }}"
+    when:
+      - centos_redhat_patched.changed
+      - pre_kernel_version.stdout != post_kernel_version.stdout
+
+
+  - name: Loggging for Installed Updates to {{ logging_dir }} directory
+    shell: rpm -qa --last | grep "$(date +%a\ %d\ %b\ %Y)" | cut -f 1 -d " " >> installed_updates_`date +'%y%m%d-%H%M%S'`.txt
+    args:
+      chdir: "{{ logging_dir }}"
+      warn: no
+    when:
+      - logging_enabled_for_installed_updates | bool
+      - centos_redhat_patched.changed

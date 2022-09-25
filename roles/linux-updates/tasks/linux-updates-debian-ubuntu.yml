@@ -1,0 +1,70 @@
+---
+  ###
+  ###
+  # DEBIAN/UBUNTU OS Updates
+  ###
+  ###
+  - name: Get pre-update kernel version
+    shell: uname -nr
+    register: pre_kernel_version
+
+  - name: Verify pre-update kernel version
+    debug: msg="{{ pre_kernel_version.stdout_lines }}"
+
+
+  - name: Log Available Updates to {{ logging_dir }} directory
+    shell: apt update && apt list --upgradable >> available_updates_`date +'%y%m%d-%H%M%S'`.txt
+    args:
+      chdir: "{{ logging_dir }}"
+    when: logging_enabled_for_available_updates | bool
+
+
+  - name: Check and install updates
+    apt:
+      update_cache: yes
+      upgrade: dist
+      force_apt_get: yes
+      autoremove: yes
+      autoclean: yes
+    register: debian_ubuntu_patched
+
+  - pause:
+      seconds: 5
+    when: debian_ubuntu_patched.changed
+
+
+  - name: Reboot host
+    reboot:
+      msg: "Reboot initiated by Ansible for OS Updates"
+    async: 1
+    poll: 0
+    when: debian_ubuntu_patched.changed
+
+  - name: Waiting for host to start...
+    wait_for_connection:
+      delay: 5 # seconds to wait before starting to poll
+      connect_timeout: 20 # maximum number of seconds to wait for a connection to happen before closing and retrying
+      sleep: 5 # seconds to sleep between checks
+      timeout: 300 # maximum number of seconds to wait for
+    when: debian_ubuntu_patched.changed
+
+
+  - name: Get post-update kernel version
+    shell: uname -nr
+    register: post_kernel_version
+    when: debian_ubuntu_patched.changed
+
+  - name: Verify post-update kernel version
+    debug: msg="{{ pre_kernel_version.stdout_lines }} -> {{ post_kernel_version.stdout_lines }}"
+    when:
+      - debian_ubuntu_patched.changed
+      - pre_kernel_version.stdout != post_kernel_version.stdout
+
+
+  - name: Loggging for Installed Updates to {{ logging_dir }} directory
+    shell: grep -E "^$(date +%Y-%m-%d).+ (install|upgrade) " /var/log/dpkg.log | cut -d " " -f 3-5 >> installed_updates_`date +'%y%m%d-%H%M%S'`.txt
+    args:
+      chdir: "{{ logging_dir }}"
+    when:
+      - logging_enabled_for_installed_updates | bool
+      - debian_ubuntu_patched.changed

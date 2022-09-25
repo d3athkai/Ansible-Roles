@@ -1,0 +1,7 @@
+---
+# defaults file for linux-updates
+
+# Enable/Disable logging for Available Updates and Installed Updates
+logging_dir: /root
+logging_enabled_for_available_updates: true   # Options: [true, false]
+logging_enabled_for_installed_updates: true   # Options: [true, false]
