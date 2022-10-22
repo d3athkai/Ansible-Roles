@@ -1,0 +1,34 @@
+---
+  ###
+  ###
+  # SETUP DOCKER SYSTEM PRUNE CRON
+  ###
+  - name: Remove /etc/cron.daily/docker-prune file if exists
+    ansible.builtin.file:
+      path: /etc/cron.daily/docker-prune
+      state: absent
+
+  - name: Creates a cron file under /etc/cron.d
+    ansible.builtin.blockinfile:
+      path: /etc/cron.daily/docker-prune
+      create: yes
+      block: |
+        #!/bin/bash
+        docker system prune -af  --filter "until=$((30*24))h" > /opt/scripts/logs/docker-system-prune.log.$(date +"%Y%m%d")
+      marker: ""
+      owner: root
+      group: root
+      mode: '0755'
+
+  - name: Remove blank lines in /etc/cron.daily/docker-prune
+    ansible.builtin.lineinfile :
+      path: /etc/cron.daily/docker-prune
+      state: absent
+      regexp: '^$'
+
+  - name: Cron Test
+    ansible.builtin.shell: /usr/bin/run-parts /etc/cron.daily
+    register: docker_cron
+
+  - name: Show Cron Test (Output should be empty)
+    ansible.builtin.debug: msg="{{ docker_cron.stdout_lines }}"

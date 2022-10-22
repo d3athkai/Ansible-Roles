@@ -25,3 +25,6 @@ docker_directory_permission: 0755 # example: 0755
 
 # Docker Compose Setting
 docker_compose_setup: true # true / false
+
+# Cron Setting
+docker_system_prune_cron: true # true / false
