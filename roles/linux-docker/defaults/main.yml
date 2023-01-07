@@ -15,13 +15,11 @@ docker_insecure_registries: []
 # Docker User Settings
 docker_create_user: true # true / false
 docker_user: dockeradm
-docker_password: '*'
 
 # Docker Directory
 docker_create_directory: true # true / false
 docker_directory: /docker-apps
 docker_directory_owner: dockeradm
-docker_directory_permission: 0755 # example: 0755
 
 # Docker Compose Setting
 docker_compose_setup: true # true / false

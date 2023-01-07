@@ -1,0 +1,10 @@
+{% for host in ansible_play_hosts %}
+/var/log/docker-system-prune.log {
+    compress
+    missingok
+    monthly
+    notifempty
+    create 0644 root root
+    rotate 6
+}
+{% endfor %}

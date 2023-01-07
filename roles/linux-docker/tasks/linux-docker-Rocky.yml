@@ -4,50 +4,32 @@
   # SETUP DOCKER FOR ROCKY LINUX: https://docs.docker.com/engine/install/centos/
   ###
   ###
-  - name: Uninstall old versions of Docker
-    yum:
-      name:
-      - docker
-      - docker-client
-      - docker-client-latest
-      - docker-common
-      - docker-latest
-      - docker-latest-logrotate
-      - docker-logrotate
-      - docker-engine
-      state: absent
-      autoremove: yes
-
   - name: Add Docker's stable Repository
-    get_url:
+    ansible.builtin.get_url:
       url: https://download.docker.com/linux/centos/docker-ce.repo
       dest: /etc/yum.repos.d/docker-ce.repo
+      owner: root
+      group: root
+      mode: '0644'
 
   - name: Install Docker Engine
-    yum:
+    ansible.builtin.dnf:
       name:
       - docker-ce
       - docker-ce-cli
       - containerd.io
       state: latest
-      update_cache: yes
+      update_cache: true
 
   - name: Enable and Start Docker service
-    systemd:
+    ansible.builtin.systemd:
       state: started
       name: docker
-      enabled: yes
+      enabled: true
 
-  - name: Configure Docker /etc/docker/daemon.json
-    template:
-      src: daemon.json.j2
-      dest: /etc/docker/daemon.json
-      owner: root
-      group: root
-      mode: '0644'
 
   - name: Filter system logs for mount succeeded entries
-    template:
+    ansible.builtin.template:
       src: 01-blocklist.conf.j2
       dest: /etc/rsyslog.d/01-blocklist.conf
       owner: root
@@ -55,28 +37,42 @@
       mode: '0640'
 
   - name: Restart rsyslog service
-    systemd:
+    ansible.builtin.systemd:
       state: restarted
       name: rsyslog
-      enabled: yes
+      enabled: true
 
-  - name: Cron to housekeep dangling images
-    template:
-      src: docker-prune.j2
-      dest: /etc/cron.daily/docker-prune
+
+  - name: Configure Docker /etc/docker/daemon.json
+    ansible.builtin.template:
+      src: daemon.json.j2
+      dest: /etc/docker/daemon.json
       owner: root
       group: root
-      mode: '0755'
+      mode: '0644'
 
   - name: Restart Docker service
-    systemd:
+    ansible.builtin.systemd:
       state: restarted
       name: docker
-      enabled: yes
+      enabled: true
+
 
   - name: Get Docker version
-    shell: docker --version
+    ansible.builtin.shell: docker --version
+    args:
+      executable: /bin/bash
     register: docker_version
 
   - name: Show Docker version
-    debug: msg="{{ docker_version.stdout_lines }}"
+    ansible.builtin.debug: msg="{{ docker_version.stdout_lines }}"
+
+
+  - name: Test ping to google.com with busybox image
+    ansible.builtin.shell: docker run --rm -it busybox:latest ping google.com -c 3 && docker rmi busybox:latest
+    args:
+      executable: /bin/bash
+    register: busybox_ping
+
+  - name: Show busybox ping result
+    ansible.builtin.debug: msg="{{ busybox_ping.stdout_lines }}"

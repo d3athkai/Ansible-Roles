@@ -3,22 +3,17 @@
   ###
   # SETUP DOCKER COMPOSE
   ###
-  - name: Download Docker Compose
-    shell: 'curl -s https://api.github.com/repos/docker/compose/releases/latest | grep "linux-{{ ansible_architecture }}\"$" | cut -d : -f 2,3 | tr -d \" | xargs curl -L -o /usr/local/bin/docker-compose'
-    args:
-      executable: /bin/bash
-      warn: false
-
-  - name: Change Docker Compose permission
-    file:
-      path: /usr/local/bin/docker-compose
-      owner: root
-      group: root
-      mode: '0755'
+  - name: Install Docker Compose plugin
+    ansible.builtin.package:
+      name:
+      - docker-compose-plugin
+      state: latest
 
   - name: Get Docker Compose version
-    shell: docker-compose --version
+    ansible.builtin.shell: docker compose version
+    args:
+      executable: /bin/bash
     register: docker_compose_version
 
   - name: Show Docker Compose version
-    debug: msg="{{ docker_compose_version.stdout_lines }}"
+    ansible.builtin.debug: msg="{{ docker_compose_version.stdout_lines }}"

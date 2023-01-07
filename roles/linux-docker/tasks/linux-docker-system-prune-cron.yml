@@ -8,26 +8,26 @@
       path: /etc/cron.daily/docker-prune
       state: absent
 
-  - name: Creates a cron file under /etc/cron.d
-    ansible.builtin.blockinfile:
-      path: /etc/cron.daily/docker-prune
-      create: yes
-      block: |
-        #!/bin/bash
-        docker system prune -af  --filter "until=$((30*24))h" > /opt/scripts/logs/docker-system-prune.log.$(date +"%Y%m%d")
-      marker: ""
+  - name: Cron to housekeep dangling images
+    ansible.builtin.template:
+      src: docker-prune.j2
+      dest: /etc/cron.daily/docker-prune
       owner: root
       group: root
       mode: '0755'
 
-  - name: Remove blank lines in /etc/cron.daily/docker-prune
-    ansible.builtin.lineinfile :
-      path: /etc/cron.daily/docker-prune
-      state: absent
-      regexp: '^$'
+  - name: Log rotate configuration for housekeep dangling images cron logs
+    ansible.builtin.template:
+      src: docker-logrotate.j2
+      dest: /etc/logrotate.d/docker
+      owner: root
+      group: root
+      mode: '0644'
 
-  - name: Cron Test
-    ansible.builtin.shell: /usr/bin/run-parts /etc/cron.daily
+  - name: Test housekeep dangling images cron
+    ansible.builtin.shell: run-parts /etc/cron.daily
+    args:
+      executable: /bin/bash
     register: docker_cron
 
   - name: Show Cron Test (Output should be empty)

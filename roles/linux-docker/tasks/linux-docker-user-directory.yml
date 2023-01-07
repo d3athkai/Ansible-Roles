@@ -5,35 +5,36 @@
   ###
   - block:
     - name: Create user {{ docker_user }} to manage Docker
-      user:
+      ansible.builtin.user:
         name: "{{ docker_user }}"
-        append: yes
+        append: false
         comment: Docker User
         groups: docker
-        password: "{{ docker_password }}"
+        password_lock: true
         expires: -1
         home: /home/{{ docker_user }}
         shell: /bin/bash
         state: present
 
     - name: Get User info
-      shell: passwd -S {{ docker_user }}
+      ansible.builtin.shell: passwd -S {{ docker_user }}
+      args:
+        executable: /bin/bash
       register: docker_user
 
     - name: Show User info
-      debug: msg="{{ docker_user.stdout_lines }}"
+      ansible.builtin.debug: msg="{{ docker_user.stdout_lines }}"
 
     when: docker_create_user | bool == true
 
 
   - block:
     - name: Create Docker directory
-      file:
+      ansible.builtin.file:
         path: "{{ docker_directory }}"
         state: directory
-        recurse: yes
         owner: "{{ docker_directory_owner }}"
         group: docker
-        mode: '{{ docker_directory_permission }}'
+        mode: '0750'
 
     when: docker_create_directory | bool == true
