@@ -1,0 +1,78 @@
+---
+  ###
+  ###
+  # DEBIAN OS Updates
+  ###
+  ###
+  - name: Get pre-update kernel version
+    ansible.builtin.shell: uname -nr
+    register: pre_kernel_version
+
+  - name: Display pre-update kernel version
+    ansible.builtin.debug: msg="{{ pre_kernel_version.stdout_lines }}"
+
+
+  - name: Log available updates to {{ logging_dir }} directory
+    ansible.builtin.shell: apt update && apt list --upgradable >> available_updates_`date +'%y%m%d-%H%M%S'`.txt
+    args:
+      chdir: "{{ logging_dir }}"
+    when: logging_enabled_for_available_updates | bool
+
+
+  - name: Check and install updates
+    ansible.builtin.apt:
+      update_cache: yes
+      upgrade: dist
+      force_apt_get: yes
+      autoremove: yes
+      autoclean: yes
+    register: debian_ubuntu_patched
+
+  - ansible.builtin.pause:
+      seconds: 5
+    when: debian_ubuntu_patched.changed
+
+
+  - name: Verify if reboot is required
+    ansible.builtin.stat:
+      path: /var/run/reboot-required
+    register: reboot_required
+
+  - name: Reboot host
+    ansible.builtin.reboot:
+      msg: "Reboot initiated by Ansible for OS Updates"
+      reboot_timeout: 900
+    async: 1
+    poll: 0
+    when:
+      - debian_ubuntu_patched.changed
+      - reboot_required.stat.exists
+
+  - name: Waiting for host to start...
+    ansible.builtin.wait_for_connection:
+      delay: 5 # seconds to wait before starting to poll
+      connect_timeout: 20 # maximum number of seconds to wait for a connection to happen before closing and retrying
+      sleep: 5 # seconds to sleep between checks
+      timeout: 300 # maximum number of seconds to wait for
+    when: debian_ubuntu_patched.changed
+
+
+  - name: Get post-update kernel version
+    ansible.builtin.shell: uname -nr
+    register: post_kernel_version
+    when: debian_ubuntu_patched.changed
+
+  - name: Display post-update kernel version (only when version is different )
+    ansible.builtin.debug: msg="{{ pre_kernel_version.stdout_lines }} -> {{ post_kernel_version.stdout_lines }}"
+    when:
+      - debian_ubuntu_patched.changed
+      - pre_kernel_version.stdout != post_kernel_version.stdout
+
+
+  - name: Log installed updates to {{ logging_dir }} directory
+    ansible.builtin.shell: grep -E "^$(date +%Y-%m-%d).+ (install|upgrade) " /var/log/dpkg.log | cut -d " " -f 3-5 >> installed_updates_`date +'%y%m%d-%H%M%S'`.txt
+    args:
+      chdir: "{{ logging_dir }}"
+    when:
+      - logging_enabled_for_installed_updates | bool
+      - debian_ubuntu_patched.changed

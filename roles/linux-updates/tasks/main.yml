@@ -1,0 +1,4 @@
+---
+# task file for linux-updates
+
+- include_tasks: linux-updates-{{ ansible_distribution }}.yml
