@@ -16,7 +16,7 @@
       autoclean: true
 
   - name: Add Docker’s official GPG key
-    ansible.builtin.apt_ke:
+    ansible.builtin.apt_key:
       url: https://download.docker.com/linux/debian/gpg
       keyring: /usr/share/keyrings/docker-archive-keyring.gpg
       state: present
@@ -76,23 +76,3 @@
   - name: Restart Docker service
     ansible.builtin.systemd:
       state: restarted
-      name: docker
-      enabled: true
-
-
-  - name: Get Docker version
-    ansible.builtin.shell: docker --version
-    register: docker_version
-
-  - name: Show Docker version
-    ansible.builtin.debug: msg="{{ docker_version.stdout_lines }}"
-
-
-  - name: Test ping to google.com with busybox image
-    ansible.builtin.shell: docker run --rm -it busybox:latest ping google.com -c 3 && docker rmi busybox:latest
-    args:
-      executable: /bin/bash
-    register: busybox_ping
-
-  - name: Show busybox ping result
-    ansible.builtin.debug: msg="{{ busybox_ping.stdout_lines }}"
