@@ -32,6 +32,9 @@
       seconds: 5
     when: debian_ubuntu_patched.changed
 
+  - name: Check and update bootloader and EEPROMs
+    ansible.builtin.command: rpi-eeprom-update -a -d
+    register: update_rpi_eeprom
 
   - name: Verify if reboot is required
     ansible.builtin.stat:
@@ -45,7 +48,7 @@
     async: 1
     poll: 0
     when:
-      - debian_ubuntu_patched.changed
+      - "( debian_ubuntu_patched.changed ) or ( 'reboot to apply the update' in update_rpi_eeprom.stdout )"
       - reboot_required.stat.exists
 
   - name: Waiting for host to start...
