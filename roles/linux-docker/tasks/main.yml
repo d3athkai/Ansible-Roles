@@ -5,8 +5,5 @@
 
 - import_tasks: linux-docker-user-directory.yml
 
-- import_tasks: linux-docker-compose.yml
-  when: docker_compose_setup | bool == true
-
 - import_tasks: linux-docker-system-prune-cron.yml
   when: docker_system_prune_cron | bool == true
