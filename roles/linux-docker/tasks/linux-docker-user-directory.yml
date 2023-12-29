@@ -9,6 +9,7 @@
         name: "{{ docker_user }}"
         append: false
         comment: Docker User
+        uid: 1005
         groups: docker
         password_lock: true
         expires: -1
