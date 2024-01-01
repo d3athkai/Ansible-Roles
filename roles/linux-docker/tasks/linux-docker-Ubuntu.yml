@@ -7,6 +7,7 @@
   - name: Install packages to allow apt to use a repository over HTTPS
     ansible.builtin.apt:
       name:
+      - rsyslog
       - ca-certificates
       - curl
       - gnupg

@@ -1,0 +1,28 @@
+---
+  ###
+  ###
+  # SETUP DOCKER IP FORWARD
+  ###
+  - ansible.posix.sysctl:
+      name: net.ipv4.ip_forward
+      value: '1'
+      sysctl_set: true
+      state: present
+      reload: true
+
+  - ansible.posix.sysctl:
+      name: net.ipv6.conf.all.forwarding
+      value: '1'
+      sysctl_set: true
+      state: present
+      reload: true
+    when: ipv6_enabled | bool == true
+
+  - name: Populate service facts
+    ansible.builtin.service_facts:
+
+  - name: Restart docker service
+    ansible.builtin.systemd:
+      name: docker
+      state: restarted
+    when: "'docker' in services"

@@ -1,6 +1,9 @@
 ---
 # defaults file for linux-docker
 
+# IPv6 Setting
+ipv6_enabled: false
+
 # Docker Logs Settings
 docker_logs_max_size: 10m
 docker_logs_max_file: 3

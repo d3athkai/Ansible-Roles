@@ -1,6 +1,8 @@
 ---
 # task file for linux-docker
 
+- import_tasks: linux-docker-ip_forward.yml
+
 - include_tasks: linux-docker-{{ ansible_distribution }}.yml
 
 - import_tasks: linux-docker-user-directory.yml
