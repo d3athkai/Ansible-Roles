@@ -91,7 +91,7 @@
 
 
   - name: Test ping to google.com with busybox image
-    ansible.builtin.shell: docker run --rm -it busybox:latest ping google.com -c 3 && docker rmi busybox:latest
+    ansible.builtin.shell: docker run --rm busybox:latest ping google.com -c 3 && docker rmi busybox:latest
     args:
       executable: /bin/bash
     register: busybox_ping
