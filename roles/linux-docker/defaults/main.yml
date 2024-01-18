@@ -5,6 +5,7 @@
 ipv6_enabled: false
 
 # Docker Logs Settings
+docker_data_root_directory: "" # Put "" for default /var/lib/docker directory
 docker_logs_max_size: 10m
 docker_logs_max_file: 3
 
@@ -19,7 +20,7 @@ docker_insecure_registries: []
 docker_create_user: true # true / false
 docker_user: dockeradm
 
-# Docker Directory
+# Docker Applications Directory
 docker_create_directory: true # true / false
 docker_directory: /docker-apps
 docker_directory_owner: dockeradm

@@ -1,5 +1,6 @@
 {% for host in ansible_play_hosts %}
 {
+	"data-root": "{{ docker_data_root_directory }}",
 	"log-driver": "json-file",
 	"log-opts": {
 		"max-size": "{{ docker_logs_max_size }}",
