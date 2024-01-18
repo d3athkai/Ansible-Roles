@@ -16,7 +16,6 @@ In `/etc/ansible/ansible.cfg`, under `[defaults]`, add: `interpreter_python=/usr
 | ------------- | ------------- | ------------- |
 | 1 | linux-updates  | To perform OS Updates for RockyLinux / Red Hat / Ubuntu / Raspberry Pi OS.<br>It will reboot the host after updating and wait for the host to boot.<br>It has the options of enabling logging for both available updates and installed updates in the logging directory specified.  |
 | 2 | linux-fail2ban  | To setup Fail2ban for RockyLinux / Ubuntu / Debian / Raspberry Pi OS.<br>Multiple failed ssh attempts will result in IP block in UFW / Firewalld.  |
-| 3 | linux-docker  | To setup Docker for RockyLinux / Ubuntu / Debian / Raspberry Pi OS.<br>It has the options of creating a user to manage Docker and installing Docker Compose.  |
+| 3 | linux-docker  | To setup Docker for RockyLinux / Ubuntu / Debian / Raspberry Pi OS.<br>It has the options of creating a user to manage Docker and changing default Docker root-data directory.  |
 | 4 | linux-sssd  | To setup SSSD for RockyLinux / Ubuntu / Debian / Raspberry Pi OS.  |
 | 5 | linux-mariadb  | To setup MariaDB for RockyLinux.  |
-  
